@@ -1,9 +1,9 @@
 const request = require('supertest');
 
-const app = require('../../app');
+const app = require('../../index');
 const newTodo = require('../mock-data/new-todo.json');
 
-const endpointUrl = '/todos/';
+const endpointUrl = '/';
 
 describe(endpointUrl, () => {
   it('POST ' + endpointUrl, async () => {

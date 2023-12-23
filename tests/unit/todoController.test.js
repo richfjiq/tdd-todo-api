@@ -1,7 +1,7 @@
 const httpMocks = require('node-mocks-http');
 
 const todoController = require('../../controllers/todoController');
-const TodoModel = require('../../model/todoModel');
+const TodoModel = require('../../model/Todo');
 const newTodo = require('../mock-data/new-todo.json');
 
 TodoModel.create = jest.fn();
