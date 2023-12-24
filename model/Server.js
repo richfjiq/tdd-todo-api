@@ -17,12 +17,6 @@ class Server {
     this.routes();
   }
 
-  listen() {
-    this.app.listen(this.port, () => {
-      console.log(`Server running on port ${this.port}`);
-    });
-  }
-
   middleware() {
     this.app.use(cors());
     this.app.use(express.json());

@@ -7,9 +7,9 @@ const home = (req, res, next) => {
 };
 
 const createTodo = async (req, res, next) => {
-  db.connect();
+  await db.connect();
   const createdModel = await TodoModel.create(req.body);
-  db.disconnect();
+  await db.disconnect();
   res.status(201).json(createdModel);
 };
 

@@ -19,9 +19,9 @@ describe('todoController.createTodo', () => {
     expect(typeof todoController.createTodo).toBe('function');
   });
 
-  it('should call TodoModel.create', () => {
+  it('should call TodoModel.create', async () => {
     req.body = newTodo;
-    todoController.createTodo(req, res, next);
+    await todoController.createTodo(req, res, next);
     expect(TodoModel.create).toBeCalledWith(newTodo);
   });
 
