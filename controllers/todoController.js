@@ -7,10 +7,16 @@ const home = (req, res, next) => {
 };
 
 const createTodo = async (req, res, next) => {
-  await db.connect();
-  const createdModel = await TodoModel.create(req.body);
-  await db.disconnect();
-  res.status(201).json(createdModel);
+  try {
+    await db.connect();
+    const createdModel = await TodoModel.create(req.body);
+    await db.disconnect();
+    res.status(201).json(createdModel);
+  } catch (error) {
+    console.error(error.message);
+    return res.status(400).json({ message: error.message });
+    // next(error);
+  }
 };
 
 module.exports = {

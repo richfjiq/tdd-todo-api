@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles --watchAll"
+    "test": "jest --detectOpenHandles --watchAll",
+    "start": "nodemon app.js --trace-warnings"
   },
   "author": "richfjiq",
   "license": "MIT",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
     "supertest": "^6.3.3"
   }
 }

@@ -7,8 +7,9 @@ const newTodo = require('../mock-data/new-todo.json');
 
 dotenv.config();
 
-const endpointUrl = '/';
+const endpointUrl = '/todos';
 
+/* Opening database connection after each test. */
 beforeEach(async () => {
   await mongoose.connect(process.env.MONGO_URL);
 });
@@ -25,4 +26,17 @@ describe(endpointUrl, () => {
     expect(response.body.title).toBe(newTodo.title);
     expect(response.body.done).toBe(newTodo.done);
   });
+
+  it(
+    'should return error 500 on malformed data with POST' + endpointUrl,
+    async () => {
+      const response = await request(server.app)
+        .post('/todos')
+        .send({ title: 'Missing done property.' });
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toStrictEqual({
+        message: 'Todo validation failed: done: Path `done` is required.',
+      });
+    }
+  );
 });
