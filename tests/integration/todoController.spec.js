@@ -20,8 +20,17 @@ afterEach(async () => {
 });
 
 describe(endpointUrl, () => {
+  it('GET ' + endpointUrl, async () => {
+    const response = await request(server.app).get(endpointUrl);
+    console.log('------------------------------------', response);
+    expect(response.statusCode).toBe(200);
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body[0].title).toBeDefined();
+    expect(response.body[0].done).toBeDefined();
+  });
+
   it('POST ' + endpointUrl, async () => {
-    const response = await request(server.app).post('/todos').send(newTodo);
+    const response = await request(server.app).post(endpointUrl).send(newTodo);
     expect(response.statusCode).toBe(201);
     expect(response.body.title).toBe(newTodo.title);
     expect(response.body.done).toBe(newTodo.done);
