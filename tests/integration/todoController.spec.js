@@ -19,14 +19,32 @@ afterEach(async () => {
   await mongoose.connection.close();
 });
 
+let firstTodo;
+
 describe(endpointUrl, () => {
   it('GET ' + endpointUrl, async () => {
     const response = await request(server.app).get(endpointUrl);
-    console.log('------------------------------------', response);
     expect(response.statusCode).toBe(200);
     expect(Array.isArray(response.body)).toBeTruthy();
     expect(response.body[0].title).toBeDefined();
     expect(response.body[0].done).toBeDefined();
+    firstTodo = response.body[0];
+  });
+
+  it('GET by id ' + endpointUrl + ':id', async () => {
+    const response = await request(server.app).get(
+      `${endpointUrl}/${firstTodo._id}`
+    );
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(firstTodo.title);
+    expect(response.body.done).toBe(firstTodo.done);
+  });
+
+  it('GET todoById does not exist' + endpointUrl + ':id', async () => {
+    const response = await request(server.app).get(
+      `${endpointUrl}/658ba00885d494479a9ccf04`
+    );
+    expect(response.statusCode).toBe(404);
   });
 
   it('POST ' + endpointUrl, async () => {

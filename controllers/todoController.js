@@ -9,6 +9,7 @@ const createTodo = async (req, res, next) => {
     await db.disconnect();
     res.status(201).json(createdModel);
   } catch (error) {
+    await db.disconnect();
     console.error(error.message);
     res.status(400).json({ message: error.message });
   }
@@ -19,9 +20,25 @@ const getTodos = async (req, res, next) => {
     await db.connect();
     const allTodos = await TodoModel.find({});
     await db.disconnect();
-    console.log(allTodos);
     res.status(200).json(allTodos);
   } catch (error) {
+    await db.disconnect();
+    console.error(error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const getTodoById = async (req, res, next) => {
+  try {
+    await db.connect();
+    const todo = await TodoModel.findById(req.params.id);
+    if (!todo) {
+      return res.status(404).json({ message: 'Not found' });
+    }
+    await db.disconnect();
+    res.status(200).json(todo);
+  } catch (error) {
+    await db.disconnect();
     console.error(error.message);
     res.status(400).json({ message: error.message });
   }
@@ -30,4 +47,5 @@ const getTodos = async (req, res, next) => {
 module.exports = {
   createTodo,
   getTodos,
+  getTodoById,
 };
