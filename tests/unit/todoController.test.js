@@ -9,13 +9,67 @@ const todo = require('../mock-data/todo.json');
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
 TodoModel.findById = jest.fn();
+TodoModel.findByIdAndUpdate = jest.fn();
 
 let req, res, next;
+const todoId = '6590ea13b5020f2082cbdcb9';
 
 beforeEach(() => {
   req = httpMocks.createRequest();
   res = httpMocks.createResponse();
   next = jest.fn();
+});
+
+describe('todoController.updateTodo', () => {
+  it('should have a updateTodo function', () => {
+    expect(typeof todoController.updateTodo).toBe('function');
+  });
+
+  it('should update with TodoModel.findByIdAndUpdate', async () => {
+    req.params.id = todoId;
+    req.body = newTodo;
+    await todoController.updateTodo(req, res, next);
+    TodoModel.findByIdAndUpdate(todoId, newTodo, {
+      new: true,
+      useFindAndModify: false,
+    });
+    expect(TodoModel.findByIdAndUpdate).toHaveBeenCalledWith(todoId, newTodo, {
+      new: true,
+      useFindAndModify: false,
+    });
+  });
+
+  it('should return a response with json data and http code 200', async () => {
+    req.params.todoId = todoId;
+    req.body = newTodo;
+    TodoModel.findByIdAndUpdate.mockReturnValue(newTodo);
+    await todoController.updateTodo(req, res, next);
+    expect(res._isEndCalled()).toBeTruthy();
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toStrictEqual(newTodo);
+  });
+
+  it('should handle error if todo does not exist', async () => {
+    req.params.todoId = todoId;
+    req.body = newTodo;
+    TodoModel.findByIdAndUpdate.mockReturnValue(null);
+    await todoController.updateTodo(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._getJSONData()).toStrictEqual({ message: 'Todo not found.' });
+  });
+
+  it('should handle errors', async () => {
+    req.params.todoId = todoId;
+    req.body = newTodo;
+    TodoModel.findByIdAndUpdate.mockRejectedValue({
+      message: 'Request error.',
+    });
+    await todoController.updateTodo(req, res, next);
+    expect(res.statusCode).toBe(400);
+    expect(res._getJSONData()).toStrictEqual({
+      message: 'Request error.',
+    });
+  });
 });
 
 describe('todoController.getTodoById', () => {
@@ -24,13 +78,13 @@ describe('todoController.getTodoById', () => {
   });
 
   it('should call TodoModel.findById with route parameters', async () => {
-    req.params.id = '658ba00885d494479a9ccf0c';
+    req.params.id = todoId;
     await todoController.getTodoById(req, res, next);
-    expect(TodoModel.findById).toBeCalledWith('658ba00885d494479a9ccf0c');
+    expect(TodoModel.findById).toBeCalledWith(todoId);
   });
 
   it('should return json body and response code 200', async () => {
-    req.params.id = '658ba00885d494479a9ccf0c';
+    req.params.id = todoId;
     TodoModel.findById.mockReturnValue(todo);
     await todoController.getTodoById(req, res, next);
     expect(res.statusCode).toBe(200);
@@ -39,7 +93,7 @@ describe('todoController.getTodoById', () => {
   });
 
   it('should handle errors', async () => {
-    req.params.id = '658ba00885d494479a9ccf0c';
+    req.params.id = todoId;
     TodoModel.findById.mockRejectedValue({
       message: 'Todo with this id does not exist.',
     });

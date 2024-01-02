@@ -7,7 +7,7 @@ const newTodo = require('../mock-data/new-todo.json');
 
 dotenv.config();
 
-const endpointUrl = '/todos';
+const endpointUrl = '/todos/';
 
 /* Opening database connection after each test. */
 beforeEach(async () => {
@@ -19,7 +19,7 @@ afterEach(async () => {
   await mongoose.connection.close();
 });
 
-let firstTodo;
+let firstTodo, newTodoId;
 
 describe(endpointUrl, () => {
   it('GET ' + endpointUrl, async () => {
@@ -52,6 +52,7 @@ describe(endpointUrl, () => {
     expect(response.statusCode).toBe(201);
     expect(response.body.title).toBe(newTodo.title);
     expect(response.body.done).toBe(newTodo.done);
+    newTodoId = response.body._id;
   });
 
   it(
@@ -66,4 +67,25 @@ describe(endpointUrl, () => {
       });
     }
   );
+
+  it('PUT ' + endpointUrl, async () => {
+    const testDate = { title: 'Make integration test for PUT', done: true };
+    const res = await request(server.app)
+      .put(endpointUrl + newTodoId)
+      .send(testDate);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.title).toBe(testDate.title);
+    expect(res.body.done).toBe(testDate.done);
+  });
+
+  it('should return 404 status code if todo does not exist', async () => {
+    const testDate = { title: 'Make integration test for PUT', done: true };
+    const res = await request(server.app)
+      .put(endpointUrl + '6590ea13b5020f2082cbdcb4')
+      .send(testDate);
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toStrictEqual({
+      message: 'Todo not found.',
+    });
+  });
 });

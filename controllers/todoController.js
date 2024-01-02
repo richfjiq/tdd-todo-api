@@ -44,8 +44,32 @@ const getTodoById = async (req, res, next) => {
   }
 };
 
+const updateTodo = async (req, res, next) => {
+  try {
+    await db.connect();
+    const updatedTodo = await TodoModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        useFindAndModify: false,
+      }
+    );
+    await db.disconnect();
+    if (!updatedTodo) {
+      return res.status(404).json({ message: 'Todo not found.' });
+    }
+    res.status(200).json(updatedTodo);
+  } catch (error) {
+    await db.disconnect();
+    console.error(error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createTodo,
   getTodos,
   getTodoById,
+  updateTodo,
 };
