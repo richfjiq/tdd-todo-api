@@ -6,10 +6,12 @@ const newTodo = require('../mock-data/new-todo.json');
 const allTodos = require('../mock-data/all-todos.json');
 const todo = require('../mock-data/todo.json');
 
-TodoModel.create = jest.fn();
-TodoModel.find = jest.fn();
-TodoModel.findById = jest.fn();
-TodoModel.findByIdAndUpdate = jest.fn();
+// TodoModel.create = jest.fn();
+// TodoModel.find = jest.fn();
+// TodoModel.findById = jest.fn();
+// TodoModel.findByIdAndUpdate = jest.fn();
+// TodoModel.findByIdAndDelete = jest.fn();
+jest.mock('../../model/Todo');
 
 let req, res, next;
 const todoId = '6590ea13b5020f2082cbdcb9';
@@ -18,6 +20,41 @@ beforeEach(() => {
   req = httpMocks.createRequest();
   res = httpMocks.createResponse();
   next = jest.fn();
+});
+
+describe('todoController.deleteTodo', () => {
+  it('should have a deleteTodo function', () => {
+    expect(typeof todoController.deleteTodo).toBe('function');
+  });
+
+  it('should call findByIdAndDelete', async () => {
+    req.params.id = todoId;
+    await todoController.deleteTodo(req, res, next);
+    expect(TodoModel.findByIdAndDelete).toHaveBeenCalledWith(todoId);
+  });
+
+  it('should return status code 200 and deleted todomodel', async () => {
+    TodoModel.findByIdAndDelete.mockReturnValue(newTodo);
+    await todoController.deleteTodo(req, res, next);
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toStrictEqual(newTodo);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it('should handle errors', async () => {
+    const errorMessage = { message: 'Error deleting todo.' };
+    TodoModel.findByIdAndDelete.mockRejectedValue(errorMessage);
+    await todoController.deleteTodo(req, res, next);
+    expect(res.statusCode).toBe(400);
+    expect(res._getJSONData()).toStrictEqual(errorMessage);
+  });
+
+  it('should handle 404', async () => {
+    TodoModel.findByIdAndDelete.mockReturnValue(null);
+    await todoController.deleteTodo(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._getJSONData()).toStrictEqual({ message: 'Todo not found.' });
+  });
 });
 
 describe('todoController.updateTodo', () => {
