@@ -88,4 +88,18 @@ describe(endpointUrl, () => {
       message: 'Todo not found.',
     });
   });
+
+  it('DELETE ' + endpointUrl, async () => {
+    const res = await request(server.app).delete(endpointUrl + newTodoId);
+    expect(res.statusCode).toBe(200);
+    expect(res.body._id).toBe(newTodoId);
+  });
+
+  it('should return 404 status code if todo does not exist', async () => {
+    const res = await request(server.app).delete(endpointUrl + newTodoId);
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toStrictEqual({
+      message: 'Todo not found.',
+    });
+  });
 });
